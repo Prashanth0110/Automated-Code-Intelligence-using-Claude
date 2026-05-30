@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>POC Proposal — AI-Powered Code Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink:        #0a0e1a;
+    --ink-soft:   #3a4060;
+    --ink-muted:  #7a82a0;
+    --paper:      #f7f8fc;
+    --paper-warm: #ffffff;
+    --accent:     #1a56ff;
+    --accent-2:   #00c9a7;
+    --accent-3:   #ff6b35;
+    --accent-dim: rgba(26,86,255,0.08);
+    --border:     rgba(10,14,26,0.10);
+    --border-acc: rgba(26,86,255,0.25);
+    --shadow-sm:  0 2px 12px rgba(10,14,26,0.07);
+    --shadow-md:  0 8px 40px rgba(10,14,26,0.10);
+    --shadow-lg:  0 24px 64px rgba(10,14,26,0.13);
+    --radius:     14px;
+    --radius-sm:  8px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── SIDEBAR NAV ─────────────────────────────────────────── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 230px;
+    height: 100vh;
+    background: var(--ink);
+    padding: 36px 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 0 24px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 24px;
+  }
+
+  .sidebar-logo .tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo .title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+  }
+
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    padding: 0 24px;
+    margin: 16px 0 6px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+    border-left-color: var(--accent);
+  }
+
+  .nav-link .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .nav-link:hover .dot, .nav-link.active .dot {
+    background: var(--accent);
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 20px 24px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-footer .date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .sidebar-footer .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,201,167,0.15);
+    color: var(--accent-2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+
+  .sidebar-footer .status-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── MAIN CONTENT ────────────────────────────────────────── */
+  .main {
+    margin-left: 230px;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero {
+    background: var(--ink);
+    padding: 80px 64px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -80px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(26,86,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 200px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,201,167,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(26,86,255,0.15);
+    border: 1px solid rgba(26,86,255,0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #7aabff;
+    margin-bottom: 28px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    max-width: 680px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .hero h1 .highlight {
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-image: linear-gradient(135deg, #1a56ff, #00c9a7);
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    max-width: 560px;
+    line-height: 1.65;
+    margin-bottom: 40px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .hero-meta-item .label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .hero-meta-item .value {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ── SECTIONS ────────────────────────────────────────────── */
+  .section {
+    padding: 72px 64px;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section:nth-child(even) {
+    background: var(--paper-warm);
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 2.5vw, 32px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+
+  .section-intro {
+    font-size: 15px;
+    color: var(--ink-soft);
+    max-width: 680px;
+    line-height: 1.7;
+    margin-bottom: 44px;
+  }
+
+  /* ── PROBLEM CARDS ───────────────────────────────────────── */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .problem-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+  }
+
+  .problem-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+  }
+
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-3);
+  }
+
+  .problem-card .icon {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,107,53,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .problem-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .problem-card p {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── OBJECTIVE BOX ───────────────────────────────────────── */
+  .objective-box {
+    background: linear-gradient(135deg, var(--ink) 0%, #1a2040 100%);
+    border-radius: var(--radius);
+    padding: 48px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .objective-box::after {
+    content: 'POC';
+    position: absolute;
+    right: 40px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Syne', sans-serif;
+    font-size: 120px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.04);
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .objective-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+
+  .objective-box p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.65);
+    max-width: 620px;
+    line-height: 1.75;
+  }
+
+  .objective-box .key-question {
+    margin-top: 24px;
+    padding: 20px 24px;
+    background: rgba(26,86,255,0.2);
+    border: 1px solid rgba(26,86,255,0.4);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 500;
+    color: #7aabff;
+    font-style: italic;
+    max-width: 620px;
+  }
+
+  /* ── ARCHITECTURE FLOW ───────────────────────────────────── */
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 8px 0 16px;
+    margin-bottom: 32px;
+  }
+
+  .arch-node {
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    min-width: 150px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .arch-node:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .arch-node .node-icon {
+    font-size: 26px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .arch-node .node-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .arch-node .node-sub {
+    font-size: 11px;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+
+  .arch-node.highlight-node {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .arch-node.highlight-node .node-title {
+    color: var(--accent);
+  }
+
+  .arch-arrow {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 0 6px;
+  }
+
+  .arch-arrow .arrow-line {
+    width: 36px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--accent));
+    position: relative;
+  }
+
+  .arch-arrow .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -4px;
+    border: 5px solid transparent;
+    border-left-color: var(--accent);
+  }
+
+  .arch-arrow .arrow-label {
+    font-size: 9px;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── STACK TABLE ─────────────────────────────────────────── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .stack-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .stack-card:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+
+  .stack-card .sc-layer {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .stack-card .sc-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .stack-card .sc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .tag-pill {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .tag-pill.green {
+    background: rgba(0,201,167,0.10);
+    color: #008f75;
+  }
+
+  .tag-pill.orange {
+    background: rgba(255,107,53,0.10);
+    color: #c45000;
+  }
+
+  /* ── PHASE TIMELINE ──────────────────────────────────────── */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent-2));
+    border-radius: 2px;
+  }
+
+  .phase {
+    position: relative;
+    margin-bottom: 36px;
+    opacity: 0;
+    transform: translateX(-16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .phase.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .phase:nth-child(1) { transition-delay: 0.1s; }
+  .phase:nth-child(2) { transition-delay: 0.2s; }
+  .phase:nth-child(3) { transition-delay: 0.3s; }
+  .phase:nth-child(4) { transition-delay: 0.4s; }
+
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: -25px; top: 6px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .phase-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
+  .phase-duration {
+    font-size: 11px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-weight: 500;
+  }
+
+  .phase h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .phase p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+    max-width: 640px;
+    margin-bottom: 12px;
+  }
+
+  .deliverables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .deliverable {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .deliverable::before {
+    content: '✓';
+    color: var(--accent-2);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  /* ── COMPARISON TABLE ────────────────────────────────────── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    font-size: 13.5px;
+  }
+
+  .compare-table thead tr {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .compare-table thead th {
+    padding: 16px 20px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .compare-table thead th:first-child {
+    color: rgba(255,255,255,0.5);
+  }
+
+  .compare-table thead th.col-poc {
+    background: rgba(26,86,255,0.3);
+    color: #7aabff;
+  }
+
+  .compare-table thead th.col-enterprise {
+    background: rgba(0,201,167,0.2);
+    color: #00c9a7;
+  }
+
+  .compare-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .compare-table tbody tr:hover {
+    background: var(--accent-dim);
+  }
+
+  .compare-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .compare-table td {
+    padding: 14px 20px;
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+
+  .compare-table td:first-child {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .compare-table .zero-change {
+    background: rgba(0,201,167,0.06);
+  }
+
+  .compare-table .zero-change td:first-child::before {
+    content: '↔ ';
+    color: var(--accent-2);
+  }
+
+  /* ── RISK TABLE ──────────────────────────────────────────── */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .risk-card {
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid;
+  }
+
+  .risk-card.low {
+    background: rgba(0,201,167,0.06);
+    border-color: rgba(0,201,167,0.25);
+  }
+
+  .risk-card.medium {
+    background: rgba(255,193,7,0.06);
+    border-color: rgba(255,193,7,0.3);
+  }
+
+  .risk-card.high {
+    background: rgba(255,107,53,0.06);
+    border-color: rgba(255,107,53,0.25);
+  }
+
+  .risk-card .risk-level {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .risk-card.low .risk-level    { color: #008f75; }
+  .risk-card.medium .risk-level { color: #a07800; }
+  .risk-card.high .risk-level   { color: #c45000; }
+
+  .risk-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .risk-card p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .risk-card .mitigation {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .risk-card .mitigation strong {
+    color: var(--ink-soft);
+  }
+
+  /* ── SUCCESS CRITERIA ────────────────────────────────────── */
+  .criteria-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .criterion {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    gap: 16px;
+    transition: box-shadow 0.2s;
+  }
+
+  .criterion:hover { box-shadow: var(--shadow-sm); }
+
+  .criterion .crit-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-image: linear-gradient(135deg, var(--accent), var(--accent-2));
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .criterion .crit-body h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .criterion .crit-body p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* ── COST TABLE ──────────────────────────────────────────── */
+  .cost-table-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  .cost-table thead tr {
+    background: var(--paper);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .cost-table thead th {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .cost-table tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cost-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .cost-table td {
+    padding: 13px 20px;
+    color: var(--ink-soft);
+    vertical-align: middle;
+  }
+
+  .cost-table td:first-child {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .cost-table td:last-child {
+    font-weight: 600;
+    color: var(--ink);
+    text-align: right;
+  }
+
+  .cost-table .total-row {
+    background: var(--ink);
+  }
+
+  .cost-table .total-row td {
+    color: rgba(255,255,255,0.7);
+    padding: 16px 20px;
+  }
+
+  .cost-table .total-row td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .cost-table .total-row td:last-child {
+    color: var(--accent-2);
+    font-size: 16px;
+  }
+
+  /* ── CALLOUT ─────────────────────────────────────────────── */
+  .callout {
+    background: var(--accent-dim);
+    border: 1px solid var(--border-acc);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    margin: 24px 0;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+
+  .callout strong { color: var(--ink); }
+
+  /* ── SANITIZATION VISUAL ─────────────────────────────────── */
+  .sanitize-flow {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 32px 0;
+  }
+
+  .code-block {
+    background: #1a1f36;
+    border-radius: var(--radius);
+    padding: 24px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #a8b4d8;
+    overflow: hidden;
+  }
+
+  .code-block .cb-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .code-block.danger .cb-label  { color: #ff6b6b; }
+  .code-block.safe .cb-label    { color: var(--accent-2); }
+
+  .code-block .cm-red     { color: #ff6b6b; }
+  .code-block .cm-green   { color: #6ee7b7; }
+  .code-block .cm-blue    { color: #7aabff; }
+  .code-block .cm-grey    { color: #5a6280; }
+  .code-block .cm-yellow  { color: #fbbf24; }
+
+  .transform-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .transform-arrow .ta-icon {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    box-shadow: 0 4px 16px rgba(26,86,255,0.35);
+  }
+
+  .transform-arrow .ta-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: center;
+  }
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  .footer {
+    background: var(--ink);
+    padding: 48px 64px;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 20px;
+  }
+
+  .footer .footer-brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .footer .footer-doc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    text-align: right;
+  }
+
+  /* ── PRINT ───────────────────────────────────────────────── */
+  @media print {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .section { opacity: 1 !important; transform: none !important; }
+    .phase { opacity: 1 !important; transform: none !important; }
+    .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero { padding: 48px 32px; }
+    .section { padding: 48px 32px; }
+    .sanitize-flow { grid-template-columns: 1fr; }
+    .transform-arrow { transform: rotate(90deg); margin: 8px auto; }
+    .footer { padding: 40px 32px; flex-direction: column; text-align: center; }
+    .footer .footer-doc { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ──────────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span class="tag">POC Proposal</span>
+    <span class="title">AI Code Intelligence Platform</span>
+  </div>
+
+  <span class="nav-section-label">Document</span>
+  <a class="nav-link active" href="#overview"><span class="dot"></span>Executive Overview</a>
+  <a class="nav-link" href="#problem"><span class="dot"></span>Problem Statement</a>
+  <a class="nav-link" href="#objective"><span class="dot"></span>POC Objective</a>
+
+  <span class="nav-section-label">Technical</span>
+  <a class="nav-link" href="#architecture"><span class="dot"></span>Architecture</a>
+  <a class="nav-link" href="#stack"><span class="dot"></span>Technology Stack</a>
+  <a class="nav-link" href="#security"><span class="dot"></span>Security Model</a>
+
+  <span class="nav-section-label">Execution</span>
+  <a class="nav-link" href="#phases"><span class="dot"></span>Phases & Timeline</a>
+  <a class="nav-link" href="#migration"><span class="dot"></span>POC → Enterprise</a>
+  <a class="nav-link" href="#success"><span class="dot"></span>Success Criteria</a>
+  <a class="nav-link" href="#risks"><span class="dot"></span>Risks & Mitigation</a>
+  <a class="nav-link" href="#cost"><span class="dot"></span>Cost Estimate</a>
+
+  <div class="sidebar-footer">
+    <div class="date">Prepared: June 2026</div>
+    <div class="status-badge">Internal POC</div>
+  </div>
+</nav>
+
+<!-- ── MAIN ─────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- HERO -->
+  <section class="hero" id="overview">
+    <div class="hero-eyebrow">🔬 Proof of Concept Proposal</div>
+    <h1>AI-Powered<br/><span class="highlight">Automated Code Intelligence</span><br/>Platform</h1>
+    <p class="hero-sub">
+      Can Claude AI autonomously audit, document, and surface actionable intelligence 
+      from complex enterprise microservice codebases — without human intervention and 
+      without exposing proprietary source code?
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">Proposed Duration</span>
+        <span class="value">4–5 Weeks</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">POC Investment</span>
+        <span class="value">~$0 (Free Tiers)</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Proposed By</span>
+        <span class="value">Engineering Team</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Target Stack</span>
+        <span class="value">Java · AWS EKS · DynamoDB · MQ · Solace</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM STATEMENT -->
+  <section class="section" id="problem">
+    <div class="section-label">01 — Context</div>
+    <h2 class="section-title">The Problem We're Solving</h2>
+    <p class="section-intro">
+      As our microservice estate grows, three compounding problems are creating measurable 
+      engineering drag — affecting delivery velocity, team onboarding time, and operational risk.
+    </p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="icon">📄</div>
+        <h3>Documentation Debt</h3>
+        <p>Architecture documents, onboarding guides, and API references are either non-existent or months out of date. New developers spend 2–4 weeks just reading code before contributing meaningfully.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🔍</div>
+        <h3>No Systematic Code Review</h3>
+        <p>Security reviews, DynamoDB schema audits, and messaging pattern checks (MQ/Solace) are done ad-hoc or not at all. Issues surface in production instead of in development.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🔀</div>
+        <h3>Scattered Knowledge</h3>
+        <p>Understanding of how microservices interact — which service owns which DynamoDB table, which Solace topic triggers what workflow — lives only in the heads of senior engineers.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">⏱️</div>
+        <h3>Manual Effort Cost</h3>
+        <p>A senior architect spending 2 days auditing a single service costs the organization significantly. With 20+ microservices, systematic auditing is economically infeasible manually.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OBJECTIVE -->
+  <section class="section" id="objective">
+    <div class="section-label">02 — Objective</div>
+    <h2 class="section-title">What This POC Answers</h2>
+    <p class="section-intro">
+      This is not a feature build. This is a controlled experiment with a single binary 
+      question at the center.
+    </p>
+
+    <div class="objective-box">
+      <h3>Central POC Question</h3>
+      <p>
+        Can an AI system — specifically Anthropic's Claude — be fed the structural 
+        representation of our Java Spring Boot microservices (deployed on AWS EKS, using 
+        DynamoDB, Amazon MQ, and Solace messaging) and automatically produce:
+      </p>
+      <div class="key-question">
+        "Accurate architecture documentation, security findings, and developer onboarding 
+        guides — without any manual engineering effort, and without sensitive source code 
+        or credentials ever leaving our internal environment?"
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>What we are NOT doing:</strong> We are not replacing GitHub Copilot, 
+      Amazon Kiro, or any existing developer tooling. This POC specifically targets the 
+      gap none of those tools address — <strong>repository-wide intelligence and 
+      automated documentation generation</strong> at the architectural level.
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="section" id="architecture">
+    <div class="section-label">03 — Technical Design</div>
+    <h2 class="section-title">System Architecture</h2>
+    <p class="section-intro">
+      The pipeline has three distinct stages. Raw code never travels to any external 
+      system — only a sanitized structural skeleton is sent to the AI layer.
+    </p>
+
+    <div class="arch-flow">
+      <div class="arch-node">
+        <span class="node-icon">🏗️</span>
+        <div class="node-title">Source Repo</div>
+        <div class="node-sub">GitHub Enterprise<br/>Java Spring Boot<br/>Microservices</div>
+      </div>
+      <div class="arch-arrow">
+        <div class="arrow-line"></div>
+        <span class="arrow-label">local clone</span>
+      </div>
+      <div class="arch-node">
+        <span class="node-icon">🧹</span>
+        <div class="node-title">Sanitizer</div>
+        <div class="node-sub">Strip secrets<br/>Build skeleton<br/>Local only</div>
+      </div>
+      <div class="arch-arrow">
+        <div class="arrow-line"></div>
+        <span class="arrow-label">skeleton only</span>
+      </div>
+      <div class="arch-node highlight-node">
+        <span class="node-icon">🤖</span>
+        <div class="node-title">Claude AI</div>
+        <div class="node-sub">Architecture<br/>Security<br/>Docs</div>
+      </div>
+      <div class="arch-arrow">
+        <div class="arrow-line"></div>
+        <span class="arrow-label">findings JSON</span>
+      </div>
+      <div class="arch-node">
+        <span class="node-icon">📊</span>
+        <div class="node-title">Report Engine</div>
+        <div class="node-sub">Synthesize<br/>Format output<br/>Generate docs</div>
+      </div>
+      <div class="arch-arrow">
+        <div class="arrow-line"></div>
+        <span class="arrow-label">publish</span>
+      </div>
+      <div class="arch-node">
+        <span class="node-icon">📁</span>
+        <div class="node-title">Delivery</div>
+        <div class="node-sub">S3 / Confluence<br/>Slack alerts<br/>JIRA tickets</div>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Syne',sans-serif; font-size:17px; font-weight:700; margin-bottom:16px; color:var(--ink);">
+      The Sanitization Principle — How Code Is Protected
+    </h3>
+    <p style="font-size:14px; color:var(--ink-soft); max-width:660px; line-height:1.7; margin-bottom:24px;">
+      Before any data is sent to Claude, every file passes through a local sanitization 
+      layer. The transformation strips all method bodies, credentials, and business logic — 
+      retaining only the structural metadata that allows AI analysis.
+    </p>
+
+    <div class="sanitize-flow">
+      <div class="code-block danger">
+        <span class="cb-label">❌ Raw Java File — NEVER Sent Externally</span>
+        <span class="cm-grey">@Service</span><br/>
+        <span class="cm-blue">public class</span> <span class="cm-yellow">OrderProcessingService</span> {<br/><br/>
+        &nbsp;&nbsp;<span class="cm-red">private static final String</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm-red">DB_PASS = "Pr0d@Secret2024!";</span><br/><br/>
+        &nbsp;&nbsp;<span class="cm-blue">public</span> Order processOrder(String id) {<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm-grey">// 340 lines of proprietary</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm-grey">// business logic...</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm-red">// catches Exception silently</span><br/>
+        &nbsp;&nbsp;}<br/>
+        }
+      </div>
+
+      <div class="transform-arrow">
+        <div class="ta-icon">→</div>
+        <span class="ta-label">Sanitize</span>
+      </div>
+
+      <div class="code-block safe">
+        <span class="cb-label">✅ Skeleton Sent to Claude API</span>
+        <span class="cm-grey">// File: OrderProcessingService.java</span><br/>
+        <span class="cm-grey">// Lines: 412 | Complexity: HIGH</span><br/>
+        <span class="cm-grey">// Tests found: NONE ⚠️</span><br/><br/>
+        <span class="cm-grey">@Service</span><br/>
+        <span class="cm-blue">public class</span> <span class="cm-yellow">OrderProcessingService</span> {<br/><br/>
+        &nbsp;&nbsp;<span class="cm-grey">// [REDACTED: 2 credentials]</span><br/><br/>
+        &nbsp;&nbsp;<span class="cm-blue">public</span> Order processOrder(String id)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm-blue">throws</span> OrderException { ... }<br/><br/>
+        &nbsp;&nbsp;<span class="cm-blue">private void</span> validate(Order o) { ... }<br/>
+        }
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Security guarantee:</strong> The sanitization layer runs entirely on-premises. 
+      Claude receives method signatures, class relationships, dependency names, and 
+      structural patterns — never passwords, business logic, customer data, or internal 
+      infrastructure details.
+    </div>
+  </section>
+
+  <!-- TECHNOLOGY STACK -->
+  <section class="section" id="stack">
+    <div class="section-label">04 — Technology</div>
+    <h2 class="section-title">Technology Stack</h2>
+    <p class="section-intro">
+      The POC uses the same AWS-native stack as production. LocalStack provides a 
+      full AWS simulation locally during development — ensuring the same code runs 
+      identically in both environments.
+    </p>
+
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="sc-layer">Target System</div>
+        <div class="sc-name">Microservices Layer</div>
+        <div class="sc-tags">
+          <span class="tag-pill">Java 21</span>
+          <span class="tag-pill">Spring Boot 3</span>
+          <span class="tag-pill">Maven</span>
+          <span class="tag-pill">REST / gRPC</span>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-layer">Container Platform</div>
+        <div class="sc-name">Orchestration</div>
+        <div class="sc-tags">
+          <span class="tag-pill">Docker</span>
+          <span class="tag-pill">Kubernetes (EKS)</span>
+          <span class="tag-pill">Helm Charts</span>
+          <span class="tag-pill">ECR</span>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-layer">Data Layer</div>
+        <div class="sc-name">Persistence</div>
+        <div class="sc-tags">
+          <span class="tag-pill">DynamoDB</span>
+          <span class="tag-pill">DynamoDB Local</span>
+          <span class="tag-pill orange">GSI / LSI</span>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-layer">Messaging</div>
+        <div class="sc-name">Event Bus</div>
+        <div class="sc-tags">
+          <span class="tag-pill">Amazon MQ</span>
+          <span class="tag-pill">Solace PubSub+</span>
+          <span class="tag-pill">SQS (fallback)</span>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-layer">Local Simulation</div>
+        <div class="sc-name">LocalStack</div>
+        <div class="sc-tags">
+          <span class="tag-pill green">DynamoDB Local</span>
+          <span class="tag-pill green">SQS Local</span>
+          <span class="tag-pill green">S3 Local</span>
+          <span class="tag-pill green">EventBridge</span>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-layer">AI Engine</div>
+        <div class="sc-name">Claude API</div>
+        <div class="sc-tags">
+          <span class="tag-pill">Anthropic SDK</span>
+          <span class="tag-pill">claude-sonnet-4</span>
+          <span class="tag-pill">Structured JSON</span>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-layer">Audit Engine</div>
+        <div class="sc-name">Pipeline Runtime</div>
+        <div class="sc-tags">
+          <span class="tag-pill">Node.js 20</span>
+          <span class="tag-pill">TypeScript</span>
+          <span class="tag-pill">AWS SDK v3</span>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-layer">Infrastructure</div>
+        <div class="sc-name">AWS Services</div>
+        <div class="sc-tags">
+          <span class="tag-pill">CodeBuild</span>
+          <span class="tag-pill">EventBridge</span>
+          <span class="tag-pill">S3</span>
+          <span class="tag-pill">CloudWatch</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:8px;">
+      <strong>Key design principle:</strong> The audit pipeline uses the AWS SDK v3 
+      with a configurable endpoint URL. One environment variable switch 
+      (<code>AWS_ENDPOINT_URL</code>) routes all calls between LocalStack (local) and 
+      real AWS (production). <strong>Zero application code changes required when 
+      promoting from POC to enterprise deployment.</strong>
+    </div>
+  </section>
+
+  <!-- SECURITY MODEL -->
+  <section class="section" id="security">
+    <div class="section-label">05 — Security</div>
+    <h2 class="section-title">Data Security Model</h2>
+    <p class="section-intro">
+      Given the sensitivity of enterprise codebases, the security model is non-negotiable 
+      and built into the pipeline architecture — not bolted on.
+    </p>
+
+    <div class="risk-grid" style="margin-bottom:32px;">
+      <div class="risk-card low">
+        <div class="risk-level">✅ Guaranteed</div>
+        <h4>No Raw Source Code Leaves Network</h4>
+        <p>The sanitizer runs 100% locally. Only structural skeletons (signatures, class names, dependency lists) are transmitted to the Claude API.</p>
+      </div>
+      <div class="risk-card low">
+        <div class="risk-level">✅ Guaranteed</div>
+        <h4>No Credentials Transmitted</h4>
+        <p>The secret scanner runs before any transmission. Detected credentials are replaced with typed placeholders. Transmission is blocked if validation fails.</p>
+      </div>
+      <div class="risk-card low">
+        <div class="risk-level">✅ Guaranteed</div>
+        <h4>Anthropic API Data Policy</h4>
+        <p>Anthropic's commercial API retains logs for 7 days maximum and never uses API data for model training. Enterprise contract adds Zero Data Retention (ZDR) option.</p>
+      </div>
+      <div class="risk-card low">
+        <div class="risk-level">✅ Guaranteed</div>
+        <h4>IAM Least Privilege</h4>
+        <p>The pipeline runs with a dedicated IAM role scoped to exactly the permissions needed: DynamoDB read, S3 write to audit bucket, CloudWatch logs.</p>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:14px;color:var(--ink);">
+      What Claude Sees vs. What It Never Sees
+    </h3>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th class="col-poc">✅ Sent to Claude (Safe)</th>
+          <th style="background:rgba(255,107,53,0.2);color:#ff8c60;">❌ Never Sent (Blocked)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Code Structure</td>
+          <td>Class names, method signatures, return types, annotations</td>
+          <td>Method bodies, business logic, algorithms</td>
+        </tr>
+        <tr>
+          <td>Dependencies</td>
+          <td>Library names and versions (from pom.xml)</td>
+          <td>Internal artifact repository URLs, license keys</td>
+        </tr>
+        <tr>
+          <td>Infrastructure</td>
+          <td>AWS service names (DynamoDB, SQS), table name structure</td>
+          <td>Account IDs, ARNs, endpoint URLs, VPC details</td>
+        </tr>
+        <tr>
+          <td>Messaging</td>
+          <td>Topic/queue name patterns, message schema shapes</td>
+          <td>Broker credentials, connection strings, certificates</td>
+        </tr>
+        <tr>
+          <td>Credentials</td>
+          <td>[REDACTED_AWS_KEY], [REDACTED_DB_PASSWORD] placeholders</td>
+          <td>Actual keys, passwords, tokens, secrets of any kind</td>
+        </tr>
+        <tr>
+          <td>Business Data</td>
+          <td>Field names, data types, schema shapes</td>
+          <td>Actual values, customer records, PII of any kind</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- PHASES -->
+  <section class="section" id="phases">
+    <div class="section-label">06 — Execution Plan</div>
+    <h2 class="section-title">POC Phases & Timeline</h2>
+    <p class="section-intro">
+      Four sequential phases over 4–5 weeks. Each phase ends with a concrete, 
+      demonstrable milestone — not theoretical progress.
+    </p>
+
+    <div class="timeline">
+
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 1</span>
+          <span class="phase-duration">Week 1–2</span>
+        </div>
+        <h3>Target Microservice + Local AWS Environment</h3>
+        <p>
+          Build a realistic Java Spring Boot microservice that mirrors our production 
+          characteristics: DynamoDB persistence, Amazon MQ + Solace messaging integration, 
+          AWS SDK v3 usage, Docker containerization, and Kubernetes manifests for EKS.
+          Deploy the full stack locally using Docker Compose + LocalStack (simulated AWS).
+          Deliberately introduce realistic code quality issues — missing documentation, 
+          anti-patterns, and placeholder credentials — to give the audit engine meaningful 
+          findings to discover.
+        </p>
+        <div class="deliverables">
+          <span class="deliverable">Running Spring Boot service locally</span>
+          <span class="deliverable">LocalStack: DynamoDB + SQS + S3 + EventBridge</span>
+          <span class="deliverable">Solace broker in Docker</span>
+          <span class="deliverable">Kubernetes manifests (EKS-compatible)</span>
+          <span class="deliverable">Dockerfile + Helm chart</span>
+          <span class="deliverable">Intentional audit targets seeded</span>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 2</span>
+          <span class="phase-duration">Week 2–3</span>
+        </div>
+        <h3>Sanitization & Local Analysis Pipeline</h3>
+        <p>
+          Build the core security layer: the Java AST skeleton extractor and secret 
+          scanner. This module runs entirely offline — it reads Java source files, 
+          strips all method bodies and credential values, detects hardcoded secrets 
+          and anti-patterns locally (DynamoDB hot partitions, missing retry logic on 
+          MQ/Solace consumers, no dead letter queue configuration), and produces a 
+          structured skeleton safe for external transmission. No network calls in this phase.
+        </p>
+        <div class="deliverables">
+          <span class="deliverable">Java skeleton extractor (AST-based)</span>
+          <span class="deliverable">Secret scanner with airline-agnostic patterns</span>
+          <span class="deliverable">DynamoDB anti-pattern detector (local)</span>
+          <span class="deliverable">MQ/Solace consumer pattern linter</span>
+          <span class="deliverable">Test coverage gap detector</span>
+          <span class="deliverable">Pre-send validation gate</span>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 3</span>
+          <span class="phase-duration">Week 3–4</span>
+        </div>
+        <h3>Claude Integration & Report Generation</h3>
+        <p>
+          Connect the sanitized skeleton output to the Claude API. Implement three 
+          analysis passes: architecture mapping (what is this system?), security and 
+          quality review (what needs fixing?), and final synthesis (write the three 
+          documentation outputs). All Claude responses return structured JSON — not 
+          prose — which is then rendered into final reports. Reports are saved locally 
+          and uploaded to the local S3 bucket via LocalStack.
+        </p>
+        <div class="deliverables">
+          <span class="deliverable">Architecture analysis prompt + parser</span>
+          <span class="deliverable">Security audit prompt + findings schema</span>
+          <span class="deliverable">MQ / Solace topology analysis</span>
+          <span class="deliverable">ARCHITECTURE.md generation</span>
+          <span class="deliverable">SECURITY_AUDIT.md generation</span>
+          <span class="deliverable">DEVELOPER_ONBOARDING.md generation</span>
+          <span class="deliverable">S3 report upload (LocalStack)</span>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 4</span>
+          <span class="phase-duration">Week 4–5</span>
+        </div>
+        <h3>Real AWS Promotion + Enterprise Migration Map</h3>
+        <p>
+          Deploy the identical pipeline to real AWS free tier. Demonstrate that 
+          zero application code changes are required — the environment variable switch 
+          from LocalStack to real AWS is the only change. Run the audit against the 
+          same microservice. Validate reports are identical. Produce the Enterprise 
+          Migration Architecture document showing how this scales to CodeBuild, 
+          EventBridge scheduling, Confluence publication, and JIRA ticket creation 
+          across all microservices in the estate.
+        </p>
+        <div class="deliverables">
+          <span class="deliverable">Pipeline running on real AWS free tier</span>
+          <span class="deliverable">Zero code change validation</span>
+          <span class="deliverable">End-to-end demo recording</span>
+          <span class="deliverable">Enterprise architecture document</span>
+          <span class="deliverable">Cost projection for full rollout</span>
+          <span class="deliverable">POC findings presentation</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MIGRATION MAP -->
+  <section class="section" id="migration">
+    <div class="section-label">07 — Scalability</div>
+    <h2 class="section-title">POC → Enterprise Migration Path</h2>
+    <p class="section-intro">
+      Every design decision in the POC is made with enterprise promotion in mind. 
+      The table below shows exactly what changes — and what stays identical — when 
+      moving from local POC to full production deployment.
+    </p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th class="col-poc">POC (Local / Free Tier)</th>
+          <th class="col-enterprise">Enterprise (Full Production)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AI Provider</td>
+          <td>Anthropic API (individual key, 7-day retention)</td>
+          <td>Claude Enterprise API — MSA + DPA + Zero Data Retention (ZDR), audit logging</td>
+        </tr>
+        <tr>
+          <td>Trigger Mechanism</td>
+          <td>Manual CLI command (<code>npm run audit</code>)</td>
+          <td>AWS EventBridge rule — triggers on PR merge or nightly schedule</td>
+        </tr>
+        <tr>
+          <td>Pipeline Runner</td>
+          <td>Local Node.js process on dev machine</td>
+          <td>AWS CodeBuild project — managed, scalable, no server to maintain</td>
+        </tr>
+        <tr>
+          <td>AWS Services</td>
+          <td>LocalStack simulation (free, local Docker)</td>
+          <td>Real AWS: DynamoDB, S3, SQS, EventBridge, CloudWatch</td>
+        </tr>
+        <tr class="zero-change">
+          <td>AWS SDK Code</td>
+          <td colspan="2" style="color:var(--accent-2);font-weight:500;">ZERO CHANGES — endpoint URL env var is the only difference</td>
+        </tr>
+        <tr>
+          <td>Report Delivery</td>
+          <td>Markdown files saved to local <code>./reports</code> folder</td>
+          <td>Auto-published to Confluence, Slack notifications, JIRA tickets for critical findings</td>
+        </tr>
+        <tr>
+          <td>Scale</td>
+          <td>One microservice at a time, sequential</td>
+          <td>AWS Batch — all microservices in parallel, concurrent execution</td>
+        </tr>
+        <tr>
+          <td>Access Control</td>
+          <td>Local developer access only</td>
+          <td>IAM roles, team-based permissions, Okta SSO integration</td>
+        </tr>
+        <tr>
+          <td>History & Trending</td>
+          <td>No history — one-shot reports</td>
+          <td>DynamoDB audit history, finding trend dashboard, regression detection</td>
+        </tr>
+        <tr class="zero-change">
+          <td>Application Code</td>
+          <td colspan="2" style="color:var(--accent-2);font-weight:500;">ZERO CHANGES — identical Docker image deployed in both environments</td>
+        </tr>
+        <tr class="zero-change">
+          <td>Sanitization Logic</td>
+          <td colspan="2" style="color:var(--accent-2);font-weight:500;">ZERO CHANGES — same secret scanner, same skeleton extractor</td>
+        </tr>
+        <tr class="zero-change">
+          <td>Claude Prompts</td>
+          <td colspan="2" style="color:var(--accent-2);font-weight:500;">ZERO CHANGES — same analysis logic, enterprise key replaces POC key</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SUCCESS CRITERIA -->
+  <section class="section" id="success">
+    <div class="section-label">08 — Validation</div>
+    <h2 class="section-title">POC Success Criteria</h2>
+    <p class="section-intro">
+      The POC is declared successful when all six criteria are met. These are binary 
+      pass/fail — not subjective assessments.
+    </p>
+
+    <div class="criteria-list">
+      <div class="criterion">
+        <div class="crit-num">01</div>
+        <div class="crit-body">
+          <h4>Secret Detection Accuracy</h4>
+          <p>The sanitizer detects 100% of deliberately planted credentials (hardcoded passwords, API keys, connection strings) and blocks transmission if any are found. Zero false negatives accepted.</p>
+        </div>
+      </div>
+      <div class="criterion">
+        <div class="crit-num">02</div>
+        <div class="crit-body">
+          <h4>Architecture Document Quality</h4>
+          <p>The generated ARCHITECTURE.md is reviewed by two senior engineers who were not involved in building the POC service. Both must rate it as accurate and useful for onboarding.</p>
+        </div>
+      </div>
+      <div class="criterion">
+        <div class="crit-num">03</div>
+        <div class="crit-body">
+          <h4>Finding Recall Rate</h4>
+          <p>Claude's security and quality findings must surface at least 80% of the deliberately introduced anti-patterns (DynamoDB hot key, missing MQ retry, swallowed exceptions, etc.).</p>
+        </div>
+      </div>
+      <div class="criterion">
+        <div class="crit-num">04</div>
+        <div class="crit-body">
+          <h4>End-to-End Execution Time</h4>
+          <p>Full pipeline — from CLI invocation to three completed reports in S3 — completes in under 8 minutes for a microservice of typical size (300–600 Java files).</p>
+        </div>
+      </div>
+      <div class="criterion">
+        <div class="crit-num">05</div>
+        <div class="crit-body">
+          <h4>Zero Code Change Promotion</h4>
+          <p>The exact same pipeline code and Docker image runs against real AWS (free tier) by changing only environment variables. No code modifications required for the promotion.</p>
+        </div>
+      </div>
+      <div class="criterion">
+        <div class="crit-num">06</div>
+        <div class="crit-body">
+          <h4>Messaging Topology Detection</h4>
+          <p>The system correctly identifies and documents the MQ/Solace topic and queue structure, consumer groups, and message flow between services from code analysis alone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISKS -->
+  <section class="section" id="risks">
+    <div class="section-label">09 — Risk Assessment</div>
+    <h2 class="section-title">Risks & Mitigations</h2>
+    <p class="section-intro">
+      Three risk categories identified. All are mitigated by design decisions already 
+      made in the architecture.
+    </p>
+
+    <div class="risk-grid">
+      <div class="risk-card low">
+        <div class="risk-level">LOW RISK</div>
+        <h4>Sensitive Code Exposure</h4>
+        <p>Risk that proprietary source code or credentials are inadvertently transmitted to external AI service.</p>
+        <div class="mitigation"><strong>Mitigation:</strong> Sanitization layer is a hard architectural gate. Pipeline is blocked if pre-send validator finds any sensitive content. All secrets replaced with typed placeholders before any network call.</div>
+      </div>
+      <div class="risk-card low">
+        <div class="risk-level">LOW RISK</div>
+        <h4>AWS Cost Overrun</h4>
+        <p>Risk of unexpected AWS charges during POC execution.</p>
+        <div class="mitigation"><strong>Mitigation:</strong> Phase 1–3 uses zero AWS spend (LocalStack local). Phase 4 uses AWS free tier only. Budget alert set at $5/month. All services used are within free tier limits for POC-scale usage.</div>
+      </div>
+      <div class="risk-card medium">
+        <div class="risk-level">MEDIUM RISK</div>
+        <h4>AI Output Accuracy</h4>
+        <p>Risk that Claude's architecture analysis contains inaccuracies that mislead engineers if treated as ground truth.</p>
+        <div class="mitigation"><strong>Mitigation:</strong> Success criteria require senior engineer review of outputs. Reports are explicitly labeled "AI-Generated — Requires Engineering Review." POC is a starting point, not a replacement for human judgment.</div>
+      </div>
+      <div class="risk-card medium">
+        <div class="risk-level">MEDIUM RISK</div>
+        <h4>Solace MQ Topology Complexity</h4>
+        <p>Risk that complex Solace topic hierarchies and MQ routing rules cannot be fully inferred from static code analysis alone.</p>
+        <div class="mitigation"><strong>Mitigation:</strong> Supplement static analysis with runtime topology export from Solace SEMP API. Treat Solace section of reports as "partial — requires runtime validation" in POC phase.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COST -->
+  <section class="section" id="cost">
+    <div class="section-label">10 — Investment</div>
+    <h2 class="section-title">POC Cost Estimate</h2>
+    <p class="section-intro">
+      Total infrastructure cost for the POC is effectively zero. The only potential 
+      spend is AI API usage, which is minimal at POC scale.
+    </p>
+
+    <div class="cost-table-wrap">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Provider</th>
+            <th>POC Usage</th>
+            <th>Tier</th>
+            <th>Estimated Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DynamoDB (local)</td>
+            <td>LocalStack / AWS Free Tier</td>
+            <td>~1MB data, ~5K requests</td>
+            <td>Free Tier</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>S3 (report storage)</td>
+            <td>LocalStack / AWS Free Tier</td>
+            <td>~50MB reports</td>
+            <td>Free Tier</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>SQS (messaging)</td>
+            <td>LocalStack / AWS Free Tier</td>
+            <td>~500 messages</td>
+            <td>Free Tier</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>CodeBuild (Phase 4)</td>
+            <td>AWS Free Tier</td>
+            <td>~10 build minutes</td>
+            <td>Free Tier (100 min/mo)</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>EventBridge</td>
+            <td>AWS Free Tier</td>
+            <td>~20 rule invocations</td>
+            <td>Free Tier</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>CloudWatch Logs</td>
+            <td>AWS Free Tier</td>
+            <td>~200MB logs</td>
+            <td>Free Tier</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>Claude API (Sonnet)</td>
+            <td>Anthropic</td>
+            <td>~20 full audit runs × ~200K tokens</td>
+            <td>Pay-as-you-go</td>
+            <td>~$12–18</td>
+          </tr>
+          <tr>
+            <td>Solace PubSub+ (local)</td>
+            <td>Solace Docker image</td>
+            <td>Local Docker container</td>
+            <td>Free Community Edition</td>
+            <td>$0.00</td>
+          </tr>
+          <tr class="total-row">
+            <td>Total POC Investment</td>
+            <td colspan="3">4–5 weeks, full end-to-end proof of concept</td>
+            <td>~$12–18</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:24px;">
+      <strong>Enterprise Claude cost projection:</strong> If the POC succeeds and we 
+      expand to auditing 20 microservices monthly, estimated API cost at enterprise 
+      pricing is <strong>$40–80/month</strong> — equivalent to approximately 
+      <strong>20 minutes of a senior architect's time</strong>. Current manual audit 
+      effort for the same coverage is estimated at 4–8 engineer-days per quarter.
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div>
+      <div class="footer-brand">AI Code Intelligence Platform</div>
+      <div style="margin-top:6px;">Proof of Concept Proposal · Internal Engineering</div>
+    </div>
+    <div class="footer-doc">
+      Document Version 1.0<br/>
+      Prepared June 2026<br/>
+      Classification: Internal
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  // ── Scroll-based section reveal ──────────────────────────────
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // For phases inside visible sections
+        entry.target.querySelectorAll('.phase').forEach(p => {
+          p.classList.add('visible');
+        });
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+  // ── Active nav link on scroll ─────────────────────────────────
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const navObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.toggle(
+            'active',
+            link.getAttribute('href') === '#' + entry.target.id
+          );
+        });
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(s => navObserver.observe(s));
+
+  // ── Smooth nav click ─────────────────────────────────────────
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
